@@ -1,17 +1,18 @@
 package me.petrolingus.edos;
 
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+
+import java.io.IOException;
 
 public class Application extends javafx.application.Application {
 
     @Override
-    public void start(Stage primaryStage) {
+    public void start(Stage primaryStage) throws IOException {
 
-        Label label = new Label("Hello, World!");
-        Scene scene = new Scene(new StackPane(label), 640, 480);
+        FXMLLoader fxmlLoader = new FXMLLoader(Application.class.getResource("view.fxml"));
+        Scene scene = new Scene(fxmlLoader.load());
 
         primaryStage.setTitle("EDOS");
         primaryStage.setScene(scene);

@@ -13,13 +13,16 @@ public class Particle {
 
     double vz;
 
-    public int ttl = 1000;
+    public int ttl = 100_000_000;
 
     private static final double R = 0.1;
-    private static final double THETA = 45;
+    private static final double THETA = 0.3;
     private static final double PHI = 360;
 
-    private double dt = 0.1;
+    public static double verticalB;
+    public static double horizontalB = 0.8;
+
+    private double dt = 0.01;
 
     public Particle() {
         this.x = 0;
@@ -38,6 +41,18 @@ public class Particle {
         x += vx * dt;
         y += vy * dt;
         z += vz * dt;
+
+        if (z > 0.3 && z < 0.4) {
+            vx -= horizontalB * vz * dt;
+            vz += horizontalB * vx * dt;
+        }
+
+        if (z > 0.3 && z < 0.4) {
+            vy += verticalB * vz * dt;
+            vz -= verticalB * vy * dt;
+        }
+
+        ttl--;
     }
 
     public boolean isDead() {

@@ -6,7 +6,7 @@ public class Pixel {
 
     double y;
 
-    int ttl = 23;
+    int ttl = 4;
 
     int ttlStart = ttl;
 

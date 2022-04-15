@@ -1,5 +1,7 @@
 package me.petrolingus.edos.core;
 
+import me.petrolingus.edos.core.math.Constants;
+
 public class Particle {
 
     double x;
@@ -15,23 +17,21 @@ public class Particle {
 
     public int ttl = 100_000_000;
 
-    private static final double R = 0.1;
-    private static final double THETA = 0.3;
-    private static final double PHI = 360;
+    private static final double R = 1.3e7;
+    private static final double THETA = 25;
 
-    public static double verticalB;
-    public static double horizontalB = 0.8;
+    public static double verticalE = 0;
+    public static double horizontalE = 0;
 
-    private double dt = 0.01;
+    private double dt = 10e-8;
 
     public Particle() {
         this.x = 0;
         this.y = 0;
         this.z = 0;
         double thetaInDegrees = (2 * Math.random() - 1) * THETA;
-        double phiInDegrees = (2 * Math.random() - 1) * PHI;
         double theta = Math.toRadians(thetaInDegrees);
-        double phi = Math.toRadians(phiInDegrees);
+        double phi = Constants.PI2 * Math.random();
         this.vx = R * Math.sin(theta) * Math.cos(phi);
         this.vy = R * Math.sin(theta) * Math.sin(phi);
         this.vz = R * Math.cos(theta);
@@ -43,13 +43,11 @@ public class Particle {
         z += vz * dt;
 
         if (z > 0.3 && z < 0.4) {
-            vx -= horizontalB * vz * dt;
-            vz += horizontalB * vx * dt;
+            vx += horizontalE * dt;
         }
 
         if (z > 0.3 && z < 0.4) {
-            vy += verticalB * vz * dt;
-            vz -= verticalB * vy * dt;
+            vy += verticalE * dt;
         }
 
         ttl--;

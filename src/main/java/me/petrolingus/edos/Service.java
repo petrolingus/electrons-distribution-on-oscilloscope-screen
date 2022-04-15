@@ -4,16 +4,31 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart;
+import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
-import me.petrolingus.edos.core.Particle;
 import me.petrolingus.edos.core.Pixel;
+import me.petrolingus.edos.core.electrongun.ElectronGun;
+import me.petrolingus.edos.core.electrongun.PointElectronGun;
+import me.petrolingus.edos.core.phys.Electron;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Service extends javafx.concurrent.Service<Void> {
 
-    private Canvas canvas;
+    private final Canvas canvas;
+
+    public Canvas canvasTest;
+
+    public LineChart<Number, Number> currentElectronsChart;
+
+    public boolean clearDistribution = false;
 
     public Service(Canvas canvas) {
         this.canvas = canvas;
@@ -21,82 +36,148 @@ public class Service extends javafx.concurrent.Service<Void> {
 
     @Override
     protected Task<Void> createTask() {
-        return new Task<Void>() {
+        return new Task<>() {
 
-//            private final GraphicsContext graphicsContext2D = canvas.getGraphicsContext2D();
-
-            private final List<Particle> particles = new ArrayList<>();
             private final List<Pixel> pixels = new ArrayList<>();
 
-            private final double diameter = 1;
-            private final double radius = diameter / 2;
-
-//            private void fillCircle(double x, double y) {
-//                graphicsContext2D.fillOval(300 * x - radius, 300 * y - radius, diameter, diameter);
-//            }
-
             @Override
-            protected Void call() throws Exception {
+            protected Void call() {
 
-                long lastTime = System.nanoTime();
+                double canvasWidth = canvas.getWidth();
+                double canvasHeight = canvas.getHeight();
 
                 long lastTimeDraw = System.nanoTime();
 
-                double t = 0;
-                double t2 = 0;
+                AtomicInteger currentElectrons = new AtomicInteger(0);
+                final List<Electron> electrons = new ArrayList<>();
+                ElectronGun electronGun = new PointElectronGun();
+
+                AtomicInteger cursor = new AtomicInteger(0);
+                List<Integer> deletedElectronsLastMinute = new ArrayList<>();
+
+                ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+                executor.scheduleAtFixedRate(() -> {
+
+                    if (deletedElectronsLastMinute.size() == 60) {
+                        deletedElectronsLastMinute.remove(0);
+                    }
+                    deletedElectronsLastMinute.add(currentElectrons.get());
+
+                    XYChart.Series<Number, Number> series = new XYChart.Series<>();
+                    for (int i = 0; i < deletedElectronsLastMinute.size(); i++) {
+                        int value = deletedElectronsLastMinute.get(i);
+                        series.getData().add(new XYChart.Data<>(i, value));
+                    }
+
+                    cursor.incrementAndGet();
+
+                    Platform.runLater(() -> {
+                        if (currentElectronsChart.getData() != null) {
+                            currentElectronsChart.getData().clear();
+                        }
+                        currentElectronsChart.getData().add(series);
+                    });
+                }, 0, 1000, TimeUnit.MILLISECONDS);
+
+                int[][] dist = new int[720][720];
+
+//                ScheduledExecutorService executor2 = Executors.newSingleThreadScheduledExecutor();
+//                executor2.scheduleAtFixedRate(() -> {
+//                    for (int i = 0; i < 720; i++) {
+//                        for (int j = 0; j < 720; j++) {
+//                            dist[i][j] = 0;
+//                        }
+//                    }
+//                }, 0, 50, TimeUnit.MILLISECONDS);
 
                 while (!isCancelled()) {
 
-                    // Generate new point each 5 us
-                    long nowTime = System.nanoTime();
-                    if (nowTime - lastTime > 500) {
-                        Particle particle = new Particle();
-                        particles.add(particle);
-                        lastTime = nowTime;
-                    }
+                    electrons.add(electronGun.generate());
+                    currentElectrons.set(electrons.size());
+                    electrons.forEach(Electron::move);
 
-                    // Drawing each 5 ms
+                    // Create pixel when electron ion screen
+                    electrons
+                            .stream()
+                            .filter(Electron::onScreen)
+                            .forEach(e -> pixels.add(new Pixel(e.getX(), e.getY())));
+
+                    // Remove electrons
+                    electrons.removeIf(Electron::cantMove);
+
+                    // Drawing each 1 ms
                     long nowTimeDraw = System.nanoTime();
-                    if (nowTimeDraw - lastTimeDraw > 5_000_000) {
-
-                        Pixel[] pixels1 = pixels.toArray(new Pixel[0]);
-
-                        Platform.runLater(()->{
-
+                    if (nowTimeDraw - lastTimeDraw > 15_000_000) {
+                        Pixel[] pixelsArray = pixels.toArray(new Pixel[0]);
+                        Platform.runLater(() -> {
                             GraphicsContext graphicsContext2D = canvas.getGraphicsContext2D();
                             graphicsContext2D.setFill(Color.BLACK);
-                            graphicsContext2D.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                            graphicsContext2D.clearRect(0, 0, canvasWidth, canvasHeight);
+                            graphicsContext2D.fillRect(0, 0, canvasWidth, canvasHeight);
                             graphicsContext2D.save();
                             graphicsContext2D.translate(canvas.getWidth() / 2, canvas.getHeight() / 2);
-                            for (Pixel p : pixels1) {
-                                graphicsContext2D.setFill(Color.BLACK.interpolate(Color.LIGHTGREEN, p.getTtlPercent()));
-                                graphicsContext2D.fillOval(300 * p.getX() - radius, 300 * p.getY() - radius, diameter, diameter);
+                            for (Pixel p : pixelsArray) {
+                                double x = canvasWidth * p.getX();
+                                double y = canvasHeight * p.getY();
+                                if (x > -canvasWidth / 2 && x < canvasWidth / 2 && y > -canvasHeight / 2 && y < canvasHeight / 2) {
+                                    int idx = (int) Math.floor(x + canvasWidth / 2.0);
+                                    int idy = (int) Math.floor(y + canvasHeight / 2.0);
+                                    dist[idy][idx]++;
+                                }
+                                graphicsContext2D.setFill(Color.BLACK.interpolate(Color.LIGHTGREEN, p.getBrightness()));
+                                graphicsContext2D.fillRect(x, y, 1, 1);
+                                p.decrementBrightness();
                             }
                             graphicsContext2D.restore();
+
+                            int max = 0;
+                            for (int i = 0; i < 720; i++) {
+                                for (int j = 0; j < 720; j++) {
+                                    if (dist[i][j] > max) {
+                                        max = dist[i][j];
+                                    }
+                                }
+                            }
+
+                            double[][] realDist = new double[720][720];
+                            for (int i = 0; i < 720; i++) {
+                                for (int j = 0; j < 720; j++) {
+                                    realDist[i][j] = (double) dist[i][j] / (double) max;
+                                }
+                            }
+
+                            GraphicsContext g = canvasTest.getGraphicsContext2D();
+                            g.clearRect(0, 0, 720, 720);
+                            g.setFill(Color.BLACK);
+                            g.fillRect(0, 0, 720, 720);
+                            if (max > 0) {
+                                PixelWriter pixelWriter = g.getPixelWriter();
+                                for (int y = 0; y < 720; y++) {
+                                    for (int x = 0; x < 720; x++) {
+                                        pixelWriter.setColor(x, y, Color.BLACK.interpolate(Color.LIGHTGREEN, realDist[y][x]));
+                                    }
+                                }
+                            }
+
                         });
+                        pixels.removeIf(Pixel::isDead);
                         lastTimeDraw = nowTimeDraw;
-                        pixels.forEach(Pixel::show);
                     }
 
-                    pixels.removeIf(Pixel::isDead);
-
-                    t += 0.1;
-                    t2 += 0.000001;
-                    Particle.horizontalB = 0.8 * Math.cos(0.1 * t + t2);
-                    Particle.verticalB = 0.8 * Math.cos(t + t2);
-
-                    // Move particles
-                    for (Particle p : particles) {
-                        p.move();
-                        if (p.getZ() > 1) {
-                            pixels.add(new Pixel(p.getX(), p.getY()));
-                            p.ttl = -1;
+                    if (clearDistribution) {
+                        for (int i = 0; i < dist.length; i++) {
+                            for (int j = 0; j < dist.length; j++) {
+                                dist[i][j] = 0;
+                            }
                         }
                     }
-                    particles.removeIf(Particle::isDead);
+
+                    clearDistribution = false;
 
                     Thread.yield();
                 }
+
+                executor.shutdown();
 
                 System.out.println("STOP");
 

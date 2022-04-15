@@ -11,7 +11,7 @@ public class Application extends javafx.application.Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
 
-        FXMLLoader fxmlLoader = new FXMLLoader(Application.class.getResource("view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(Application.class.getResource("view_new.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
 
         primaryStage.setTitle("EDOS");

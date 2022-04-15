@@ -6,9 +6,7 @@ public class Pixel {
 
     double y;
 
-    int ttl = 4;
-
-    int ttlStart = ttl;
+    double brightness = 1;
 
     public Pixel(double x, double y) {
         this.x = x;
@@ -23,15 +21,15 @@ public class Pixel {
         return y;
     }
 
-    public double getTtlPercent() {
-        return ((double) ttl / (double) ttlStart);
+    public double getBrightness() {
+        return brightness;
     }
 
-    public void show() {
-        ttl--;
+    public void decrementBrightness() {
+        brightness -= 0.25;
     }
 
     public boolean isDead() {
-        return ttl < 0;
+        return brightness < 0;
     }
 }

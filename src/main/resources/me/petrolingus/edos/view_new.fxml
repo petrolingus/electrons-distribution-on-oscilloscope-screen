@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<TabPane xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.petrolingus.edos.Controller">
+   <tabs>
+      <Tab text="Main">
+         <content>
+            <VBox prefWidth="1440.0" spacing="10.0">
+               <children>
+                  <HBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0">
+                     <children>
+                        <Canvas fx:id="canvas" height="720.0" width="720.0">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </Canvas>
+                        <Canvas fx:id="canvasTest" height="720.0" width="720.0">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </Canvas>
+                     </children>
+                  </HBox>
+                  <HBox spacing="10.0">
+                     <children>
+                        <TitledPane maxHeight="1.7976931348623157E308" text="Параметры ЭЛП" HBox.hgrow="ALWAYS">
+                           <content>
+                              <VBox spacing="6.0">
+                                 <children>
+                                    <HBox>
+                                       <children>
+                                          <Label maxHeight="1.7976931348623157E308" minWidth="100.0" text="Скорость" />
+                                          <TextField fx:id="speedZeroTextField" text="1.3e7" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                    </HBox>
+                                    <HBox>
+                                       <children>
+                                          <Label maxHeight="1.7976931348623157E308" minWidth="100.0" text="Шаг времени" />
+                                          <TextField fx:id="timeStepTextField" text="1e-10" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                    </HBox>
+                                    <HBox>
+                                       <children>
+                                          <Label minWidth="100.0" text="Угол отклонения" />
+                                          <Slider fx:id="deflectionAngleSlider" blockIncrement="0.01" majorTickUnit="15.0" max="45.0" min="0.01" minorTickCount="2" showTickLabels="true" showTickMarks="true" value="1.0" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                    </HBox>
+                                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onStart" text="Включить" />
+                                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onStop" text="Выключить" />
+                                    <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onClearDistribution" text="Очистить распределение" />
+                                 </children>
+                              </VBox>
+                           </content>
+                        </TitledPane>
+                        <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <TitledPane text="Ускоряющий электрод">
+                                 <content>
+                                    <VBox spacing="6.0">
+                                       <children>
+                                          <HBox spacing="4.0">
+                                             <children>
+                                                <Label minWidth="100.0" text="Активно" />
+                                                <CheckBox fx:id="accelerationActiveCheckBox" mnemonicParsing="false" selected="true" />
+                                             </children>
+                                          </HBox>
+                                          <HBox spacing="4.0">
+                                             <children>
+                                                <Label minWidth="100.0" text="Мантисса" />
+                                                <Slider fx:id="accelerationSignificandSlider" blockIncrement="0.01" majorTickUnit="0.2" max="1.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" value="0.2" HBox.hgrow="ALWAYS" />
+                                             </children>
+                                          </HBox>
+                                          <HBox spacing="4.0">
+                                             <children>
+                                                <Label minWidth="100.0" text="Экспонента" />
+                                                <Slider fx:id="accelerationExponentSlider" blockIncrement="1.0" majorTickUnit="5.0" max="20.0" minorTickCount="4" showTickLabels="true" showTickMarks="true" value="16.0" HBox.hgrow="ALWAYS" />
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                    </VBox>
+                                 </content>
+                              </TitledPane>
+                              <TitledPane maxHeight="1.7976931348623157E308" text="Фокусирующий электрод" VBox.vgrow="ALWAYS">
+                                 <content>
+                                    <VBox spacing="6.0">
+                                       <children>
+                                          <HBox spacing="4.0">
+                                             <children>
+                                                <Label minWidth="100.0" text="Активно" />
+                                                <CheckBox fx:id="focusActiveCheckBox" mnemonicParsing="false" />
+                                             </children>
+                                          </HBox>
+                                          <HBox spacing="4.0">
+                                             <children>
+                                                <Label minWidth="100.0" text="Размер щели" />
+                                                <Slider fx:id="focusSizeSlider" blockIncrement="0.01" majorTickUnit="0.05" max="0.2" minorTickCount="1" showTickLabels="true" showTickMarks="true" value="0.01" HBox.hgrow="ALWAYS" />
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                    </VBox>
+                                 </content>
+                              </TitledPane>
+                           </children>
+                        </VBox>
+                        <TitledPane animated="false" collapsible="false" text="Горизонтальное отклонение" HBox.hgrow="ALWAYS">
+                           <content>
+                              <VBox spacing="6.0">
+                                 <children>
+                                    <HBox spacing="4.0">
+                                       <children>
+                                          <Label minWidth="100.0" text="Активно" />
+                                          <CheckBox fx:id="horizontalActiveCheckBox" mnemonicParsing="false" selected="true" />
+                                       </children>
+                                    </HBox>
+                                    <HBox spacing="4.0">
+                                       <children>
+                                          <Label minWidth="100.0" text="Режим" />
+                                          <RadioButton fx:id="horizontalConstantModeRadioButton" mnemonicParsing="false" selected="true" text="Постоянная">
+                                             <toggleGroup>
+                                                <ToggleGroup fx:id="horizontalRadioGroup" />
+                                             </toggleGroup>
+                                          </RadioButton>
+                                          <RadioButton fx:id="horizontalWaveModeRadioButton" mnemonicParsing="false" selected="true" text="Волна" toggleGroup="$horizontalRadioGroup" />
+                                       </children>
+                                    </HBox>
+                                    <Separator prefWidth="200.0" />
+                                    <HBox spacing="4.0">
+                                       <children>
+                                          <Label fx:id="horizontalSignificandLabel" minWidth="100.0" text="Мантисса" />
+                                          <Slider fx:id="horizontalSignificandSlider" blockIncrement="0.01" majorTickUnit="0.5" max="1.0" min="-1.0" minorTickCount="4" showTickLabels="true" showTickMarks="true" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                    </HBox>
+                                    <HBox spacing="4.0">
+                                       <children>
+                                          <Label fx:id="horizontalExponentLabel" minWidth="100.0" text="Экспонента" />
+                                          <Slider fx:id="horizontalExponentSlider" blockIncrement="1.0" majorTickUnit="5.0" max="20.0" minorTickCount="4" showTickLabels="true" showTickMarks="true" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                    </HBox>
+                                    <Separator prefWidth="200.0" />
+                                    <HBox spacing="4.0">
+                                       <children>
+                                          <Label fx:id="horizontalAmplitudeLabel" maxHeight="1.7976931348623157E308" minWidth="100.0" text="Амплитуда" />
+                                          <TextField fx:id="horizontalAmplitudeField" text="5e14" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                    </HBox>
+                                    <HBox spacing="4.0">
+                                       <children>
+                                          <Label fx:id="horizontalFrequencyLabel" maxHeight="1.7976931348623157E308" minWidth="100.0" text="Частота" />
+                                          <TextField fx:id="horizontalFrequencyField" text="90" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                    </HBox>
+                                    <HBox spacing="4.0">
+                                       <children>
+                                          <Label fx:id="horizontalPhaseLabel" maxHeight="1.7976931348623157E308" minWidth="100.0" text="Начальная фаза" />
+                                          <TextField fx:id="horizontalPhaseField" text="0" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </content>
+                        </TitledPane>
+                        <TitledPane animated="false" collapsible="false" text="Вертикальное отклонение" HBox.hgrow="ALWAYS">
+                           <content>
+                              <VBox spacing="6.0">
+                                 <children>
+                                    <HBox spacing="4.0">
+                                       <children>
+                                          <Label minWidth="100.0" text="Активно" />
+                                          <CheckBox fx:id="verticalActiveCheckBox" mnemonicParsing="false" selected="true" />
+                                       </children>
+                                    </HBox>
+                                    <HBox spacing="4.0">
+                                       <children>
+                                          <Label minWidth="100.0" text="Режим" />
+                                          <RadioButton fx:id="verticalConstantModeRadioButton" mnemonicParsing="false" selected="true" text="Постоянная">
+                                             <toggleGroup>
+                                                <ToggleGroup fx:id="verticalRadioGroup" />
+                                             </toggleGroup>
+                                          </RadioButton>
+                                          <RadioButton fx:id="verticalWaveModeRadioButton" mnemonicParsing="false" selected="true" text="Волна" toggleGroup="$verticalRadioGroup" />
+                                       </children>
+                                    </HBox>
+                                    <Separator prefWidth="200.0" />
+                                    <HBox spacing="4.0">
+                                       <children>
+                                          <Label fx:id="verticalSignificandLabel" minWidth="100.0" text="Мантисса" />
+                                          <Slider fx:id="verticalSignificandSlider" blockIncrement="0.01" majorTickUnit="0.5" max="1.0" min="-1.0" minorTickCount="4" showTickLabels="true" showTickMarks="true" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                    </HBox>
+                                    <HBox spacing="4.0">
+                                       <children>
+                                          <Label fx:id="verticalExponentLabel" minWidth="100.0" text="Экспонента" />
+                                          <Slider fx:id="verticalExponentSlider" blockIncrement="1.0" majorTickUnit="5.0" max="20.0" minorTickCount="4" showTickLabels="true" showTickMarks="true" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                    </HBox>
+                                    <Separator prefWidth="200.0" />
+                                    <HBox spacing="4.0">
+                                       <children>
+                                          <Label fx:id="verticalAmplitudeLabel" maxHeight="1.7976931348623157E308" minWidth="100.0" text="Амплитуда" />
+                                          <TextField fx:id="verticalAmplitudeField" text="5e14" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                    </HBox>
+                                    <HBox spacing="4.0">
+                                       <children>
+                                          <Label fx:id="verticalFrequencyLabel" maxHeight="1.7976931348623157E308" minWidth="100.0" text="Частота" />
+                                          <TextField fx:id="verticalFrequencyField" text="30" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                    </HBox>
+                                    <HBox spacing="4.0">
+                                       <children>
+                                          <Label fx:id="verticalPhaseLabel" maxHeight="1.7976931348623157E308" minWidth="100.0" text="Начальная фаза" />
+                                          <TextField fx:id="verticalPhaseField" text="1.57" HBox.hgrow="ALWAYS" />
+                                       </children>
+                                    </HBox>
+                                 </children>
+                              </VBox>
+                           </content>
+                        </TitledPane>
+                     </children>
+                  </HBox>
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </VBox>
+         </content>
+      </Tab>
+      <Tab text="Statistics">
+        <content>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                     <children>
+                        <LineChart fx:id="currentElectronsChart" animated="false" legendVisible="false" VBox.vgrow="ALWAYS">
+                          <xAxis>
+                            <NumberAxis side="BOTTOM" />
+                          </xAxis>
+                          <yAxis>
+                            <NumberAxis side="LEFT" />
+                          </yAxis>
+                        </LineChart>
+                     </children>
+                  </VBox>
+               </children>
+            </AnchorPane>
+        </content>
+      </Tab>
+   </tabs>
+</TabPane>
